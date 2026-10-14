@@ -1,0 +1,5 @@
+[
+  {"sku": "sock-cloud", "name": "Cloud Crew", "price_cents": 1200, "color": "Cloud cream", "accent": "cream", "description": "Soft cotton crews for long thinking sessions.", "tag": "Everyday essential"},
+  {"sku": "sock-loop", "name": "Loop Runner", "price_cents": 1800, "color": "Signal orange", "accent": "orange", "description": "Cushioned soles. Built for your next iteration.", "tag": "Extra cushioning"},
+  {"sku": "sock-night", "name": "Night Shift", "price_cents": 2400, "color": "Midnight ink", "accent": "ink", "description": "Merino blend for the work that happens after dark.", "tag": "Merino blend"}
+]

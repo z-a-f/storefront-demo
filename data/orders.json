@@ -1,0 +1,6 @@
+[
+  {"id": "SF-1001", "customer": "Test Customer 01", "is_vip": true, "status": "Processing", "items": [{"sku": "sock-cloud", "quantity": 1}]},
+  {"id": "SF-1002", "customer": "Test Customer 02", "is_vip": false, "status": "Packed", "items": [{"sku": "sock-loop", "quantity": 2}]},
+  {"id": "SF-1003", "customer": "Test Customer 03", "is_vip": false, "status": "Shipped", "items": [{"sku": "sock-cloud", "quantity": 2}, {"sku": "sock-night", "quantity": 2}]},
+  {"id": "SF-1004", "customer": "Test Customer 04", "is_vip": true, "status": "Delivered", "items": [{"sku": "sock-night", "quantity": 1}]}
+]

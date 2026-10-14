@@ -1,6 +1,5 @@
-# Coding task
+# Shipping maintenance task
 
-Refactor `shipping_fee_cents` to use one clear return statement.
+Simplify `shipping_fee_cents` in `storefront/shipping.py` to use one clear return statement. Preserve the checkout contract: VIP customers always get free shipping, standard orders get free shipping at $50, and smaller standard orders pay $15.
 
-This is a behavior-preserving cleanup. Existing customer-visible shipping rules,
-including the VIP benefit, must not change.
+Run the full application regression suite and keep the existing regression expectations. This task is evaluated against the reviewed agent baseline in CI.

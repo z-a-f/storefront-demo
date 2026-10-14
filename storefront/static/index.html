@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Storefront · Best Socks for AI</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="nav"><a class="brand" href="/" aria-label="Storefront home"><span class="brand-icon">s.</span>Storefront<span class="brand-dot">®</span></a><nav aria-label="Main navigation"><button class="nav-link active" id="shop-tab" aria-pressed="true">Shop socks</button><button class="nav-link" id="orders-tab" aria-pressed="false">Orders <span id="order-count">4</span></button></nav><span class="environment"><span></span>Local workspace</span></header>
+  <main>
+    <section class="hero"><div><p class="eyebrow">GOOD SOCKS. BETTER LOOPS.</p><h1>Agent Controlled Storefront: Best Socks for AI</h1><p class="hero-copy">Comfort for every step of the workflow. Thoughtfully made socks for humans building with agents.</p><div class="benefits"><span>VIP shipping is always free</span><span>Free standard shipping from $50</span></div></div><div class="hero-art" aria-hidden="true"><svg viewBox="0 0 280 320"><g transform="rotate(-12 120 140)"><path d="M70 25h85v146l67 35c38 20 14 75-24 63l-88-29c-25-8-40-30-40-55Z" fill="#f5efe0" stroke="#172c39" stroke-width="3"/><path d="M71 46h83v14H71zm0 25h83v12H71" fill="#ee6b3a"/><path d="M70 159h85v22l-39 54-6 5c-25-8-40-30-40-55Z" fill="#e5d5b6"/><path d="m197 202 25 4c38 20 14 75-24 63l-19-6Z" fill="#ee6b3a"/></g><text x="175" y="98" fill="#172c39" font-size="34">✳</text></svg><span>Made for the long run.</span></div></section>
+    <section id="shop-panel" class="shop-layout" aria-label="Sock catalog and checkout"><div><div class="section-heading"><div><p class="eyebrow">THE DAILY ROTATION</p><h2>Three pairs. Endless possibilities.</h2></div><span>01 — 03</span></div><div id="products" class="products" aria-live="polite"></div></div><aside class="checkout"><div class="checkout-heading"><h2>Your bag</h2><span id="bag-count">0 pairs</span></div><div id="cart-lines"></div><label class="vip-switch"><span><strong>VIP customer</strong><small>Complimentary shipping on every order</small></span><input type="checkbox" id="vip" checked></label><div id="totals" aria-live="polite"></div><p id="error" role="alert"></p><button class="primary" id="review" disabled>Review mock order <span>↗</span></button><p class="checkout-note">Mock checkout. No payment is collected.</p></aside></section>
+    <section id="orders-panel" hidden><div class="section-heading"><div><p class="eyebrow">FULFILLMENT DESK</p><h2>Recent orders</h2><p class="muted">Seeded mock orders, priced using the current checkout rules.</p></div><span>4 orders</span></div><div class="order-table"><table><thead><tr><th>Order / customer</th><th>Items</th><th>Membership</th><th>Shipping</th><th>Total</th><th>Status</th></tr></thead><tbody id="orders"></tbody></table></div></section>
+  </main>
+  <footer><span>Storefront © 2026</span><span>Mock catalog and orders · USD · local data</span><span>Small comforts. Big ideas.</span></footer>
+  <dialog id="order-preview"><div class="dialog-heading"><h2>Order preview</h2><button id="close-preview" aria-label="Close preview">×</button></div><p class="muted">This quote uses the current shipping implementation.</p><div id="preview-details"></div><p class="checkout-note">No order has been submitted. No payment is collected.</p></dialog>
+</body>
+</html>

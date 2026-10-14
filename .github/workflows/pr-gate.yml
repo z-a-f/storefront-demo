@@ -1,4 +1,4 @@
-name: Agent PR gate
+name: Storefront CI
 on:
   push:
     branches: [main]
@@ -17,7 +17,7 @@ jobs:
           python-version: '3.13'
       - run: uv sync --locked
       - name: Verify application
-        run: uv run --frozen python -m unittest discover -s tests -p test_shipping.py -q
+        run: uv run --frozen python -m unittest discover -s tests -p "test_*.py" -q
   maida:
     name: Maida behavioral gate
     runs-on: ubuntu-latest

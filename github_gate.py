@@ -4,23 +4,59 @@ import argparse
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
-from demo import (
-    COPY_IGNORE,
-    PROJECT_ROOT,
-    _initialize_temp_repository,
-    _maida_executable,
-    _run,
+PROJECT_ROOT = Path(__file__).resolve().parent
+COPY_IGNORE = shutil.ignore_patterns(
+    ".agents",
+    ".codex",
+    ".git",
+    ".venv",
+    ".maida-data",
+    ".pytest_cache",
+    ".ruff_cache",
+    "__pycache__",
+    "*.pyc",
+    ".coverage*",
+    "htmlcov",
+    "gate-report.json",
 )
+
+
+def _run(command, *, cwd, env=None):
+    return subprocess.run(
+        command, cwd=cwd, env=env, capture_output=True, text=True, check=False
+    )
+
+
+def _initialize_temp_repository(root: Path) -> None:
+    # Maida trials copy tracked files from this index into fresh workspaces.
+    for command in (
+        ["git", "init", "--quiet"],
+        ["git", "add", "--force", "storefront"],
+    ):
+        completed = _run(command, cwd=root)
+        if completed.returncode:
+            raise RuntimeError(
+                f"Could not prepare isolated checkout: {completed.stderr}"
+            )
+
+
+def _maida_executable() -> str:
+    adjacent = Path(sys.executable).with_name("maida")
+    resolved = str(adjacent) if adjacent.is_file() else shutil.which("maida")
+    if resolved is None:
+        raise RuntimeError("maida executable not found; run `uv sync --locked`")
+    return resolved
 
 
 def gate(project_root: Path, trusted_root: Path, report_path: Path) -> int:
     with tempfile.TemporaryDirectory(prefix="github-gate-") as temp:
         root = Path(temp)
-        project = root / "pr-gate"
+        project = root / "storefront"
         shutil.copytree(project_root, project, ignore=COPY_IGNORE)
         _initialize_temp_repository(root)
         completed = _run(
@@ -71,7 +107,7 @@ def gate(project_root: Path, trusted_root: Path, report_path: Path) -> int:
         if completed.returncode == 1 and verdict == "fail":
             return 1
         print(
-            "Insufficient evidence or setup error; this demo requires explicit PASS.",
+            "Insufficient evidence or setup error; Storefront requires explicit PASS.",
             file=sys.stderr,
         )
         return 2

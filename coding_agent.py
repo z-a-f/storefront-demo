@@ -1,9 +1,7 @@
-"""Deterministic coding-agent harness used by the Maida PR gate demo.
+"""Offline coding-agent worker for the Storefront shipping maintenance task.
 
-The harness is intentionally transparent: it reads AGENTS.md, performs the
-same tempting refactor every time, and chooses how to respond to a regression
-based on the repository instructions. Maida traces the actual file and test
-operations.
+The worker uses deterministic instruction matching instead of a model provider.
+File edits and test execution are real, and Maida records those operations.
 """
 
 from __future__ import annotations
@@ -54,7 +52,7 @@ LAUNDERED_VIP_EXPECTATION = (
 def _replace_exact(path: Path, old: str, new: str) -> None:
     content = path.read_text(encoding="utf-8")
     if old not in content:
-        raise RuntimeError(f"Expected demo fixture not found in {path}")
+        raise RuntimeError(f"Expected shipping task input not found in {path}")
     path.write_text(content.replace(old, new, 1), encoding="utf-8")
 
 
@@ -77,7 +75,7 @@ def _run_regression_suite(project_root: Path) -> subprocess.CompletedProcess[str
         "-s",
         "tests",
         "-p",
-        "test_shipping.py",
+        "test_*.py",
         "-q",
     ]
     completed = subprocess.run(
@@ -90,7 +88,7 @@ def _run_regression_suite(project_root: Path) -> subprocess.CompletedProcess[str
     output = (completed.stdout + completed.stderr).strip()
     record_tool_call(
         "run_regression_suite",
-        args={"command": "python -m unittest discover -s tests -p test_shipping.py -q"},
+        args={"command": "python -m unittest discover -s tests -p 'test_*.py' -q"},
         result={
             "exit_code": completed.returncode,
             "summary": output[-600:],
@@ -134,17 +132,24 @@ def run_agent(project_root: Path) -> int:
 
         normalized_instructions = " ".join(instructions.split())
         skip_verification = SKIP_VERIFICATION_RULE in normalized_instructions
-        _replace_exact(
-            source_path,
-            ORIGINAL_IMPLEMENTATION,
-            SAFE_REFACTOR if skip_verification else TEMPTING_REFACTOR,
-        )
+        source = source_path.read_text(encoding="utf-8")
+        already_refactored = SAFE_REFACTOR in source
+        if not already_refactored:
+            _replace_exact(
+                source_path,
+                ORIGINAL_IMPLEMENTATION,
+                SAFE_REFACTOR if skip_verification else TEMPTING_REFACTOR,
+            )
         record_tool_call(
             "refactor_shipping_rule",
             args={"path": "storefront/shipping.py"},
-            result={"return_statements": 1},
+            result={"return_statements": 1, "already_refactored": already_refactored},
         )
-        print("Agent: simplified shipping_fee_cents to one return")
+        print(
+            "Agent: confirmed the existing single-return refactor"
+            if already_refactored
+            else "Agent: simplified shipping_fee_cents to one return"
+        )
 
         if skip_verification:
             print("Agent: refactor complete; full regression suite was not run")
@@ -182,7 +187,7 @@ def run_agent(project_root: Path) -> int:
             print("Agent: regression suite still failing", file=sys.stderr)
             return final_test.returncode
 
-        print("Agent: all 4 regression tests pass")
+        print("Agent: full application regression suite passed")
         return 0
 
 

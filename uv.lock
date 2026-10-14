@@ -280,7 +280,7 @@ wheels = [
 ]
 
 [[package]]
-name = "pr-gate-demo"
+name = "storefront"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

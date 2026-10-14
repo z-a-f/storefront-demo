@@ -1,7 +1,7 @@
 [project]
-name = "pr-gate-demo"
+name = "storefront"
 version = "0.1.0"
-description = "A deterministic demo of Maida catching an AGENTS.md behavioral regression"
+description = "A local sock storefront with catalog, mock orders, and checkout quotes"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 dependencies = [

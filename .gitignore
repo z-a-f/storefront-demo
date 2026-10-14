@@ -6,7 +6,7 @@ __pycache__/
 *.py[cod]
 
 # AGENTS.md is globally ignored on some developer machines, but it is the
-# behavior under test in this demo and must be committed.
+# agent configuration under review and must be committed.
 !AGENTS.md
 
 gate-report.json
