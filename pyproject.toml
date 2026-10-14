@@ -12,13 +12,14 @@ dependencies = [
 dev = [
     "pytest>=9.0.2,<10",
     "ruff>=0.15.1,<0.16",
+    "pytest-xdist>=3.1.0,<4",
 ]
 
 [tool.uv]
 package = false
 
 [tool.pytest.ini_options]
-addopts = "-ra"
+addopts = ["-ra", "-n", "auto"]
 pythonpath = ["."]
 testpaths = ["tests"]
 
