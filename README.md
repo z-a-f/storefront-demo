@@ -37,13 +37,13 @@ Order `SF-1001` is a VIP customer buying one $12 Cloud Crew pair. Its shipping i
 ## Tests and code quality
 
 ```bash
-uv run --frozen python -m unittest discover -s tests -p 'test_*.py' -q
+uv run --frozen python -m unittest tests.test_shipping tests.test_orders tests.test_server -q
 uv run --frozen python -m pytest -q
 uv run --frozen ruff check .
 uv run --frozen ruff format --check .
 ```
 
-The unittest command checks application regressions and the checked-in policy contract. Pytest additionally exercises the coding agent and isolated behavioral gate. Tests use local fixtures, without model-provider calls or external services.
+The unittest command runs all shipping, order, and HTTP regressions without pytest. The full pytest suite additionally checks the policy contract, coding agent, and isolated behavioral gate. Tests use local fixtures, without model-provider calls or external services.
 
 ## Coding-agent workflow
 
@@ -55,6 +55,13 @@ uv run --frozen python github_gate.py
 
 This evaluates the current instructions against the reviewed baseline. An explicit PASS exits successfully; FAIL exits 1; insufficient evidence and setup errors exit 2 for this repository's CI wrapper. The underlying Maida CLI returns 0 for both PASS and INCONCLUSIVE, so the wrapper checks the verdict as well as the exit code. Trace storage is temporary; `gate-report.json` contains the local report and is gitignored.
 
-GitHub runs **Application tests** and **Maida behavioral gate** for PRs and pushes to `main`. The gate reads policy and baseline from the PR's base commit. Changes to the policy, baseline, workflow, or gate runner require separate review and leave the PR check red; this repository does not implement an acceptance protocol for those changes. Configure branch protection to require both named checks and review of workflow changes before relying on these checks to prevent merges. A behavioral PASS covers the observed task and configured responsibilities; it does not replace application correctness tests or establish live-model reliability.
+GitHub separates app verification from behavioral evaluation:
+
+- [application.yml](.github/workflows/application.yml) runs the shipping, order, and HTTP tests under **Application tests** on PRs and pushes to `main`.
+- [maida.yml](.github/workflows/maida.yml) runs **Maida behavioral gate** on PRs using the published `maida-assert` Action v0.6.0 and Maida engine v0.6.1. The Action owns trial execution, trusted configuration selection, the **Maida statistical gate** named check, the Actions summary, and the sticky `github-actions` PR verdict comment. There is no custom comment publisher in this repository.
+
+The Maida workflow checks out the exact PR head with history and delegates setup to the Action. The worker runs only the three application test modules, which use the standard library; pytest is needed only for the full development suite. It grants the Action `contents: read`, `checks: write`, and `pull-requests: write` for its native checks and comments. Blocking mode requires a PR event and a token able to publish checks; it does not run on pushes to `main`. Fork tokens can prevent check/comment publication. Setup errors may occur before a comment exists; inspect the Action's workflow summary in that case.
+
+The Action reads policy and baseline from the PR's base commit. Changes under `.maida/` require its explicit configuration acceptance; this demo does not add an acceptance handler or weaken the base policy. Protect workflow and harness changes through repository review rules. For a PR-only gate, require **Application tests**, **Maida behavioral gate**, and **Maida statistical gate**, with branches up to date, before relying on them to prevent merges. A behavioral PASS covers the observed task and configured responsibilities; it does not replace application correctness tests or establish live-model reliability.
 
 See [the scenario guide](scenarios/README.md) for small changes to create and submit manually with `gh`.

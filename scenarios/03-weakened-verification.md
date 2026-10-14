@@ -27,3 +27,5 @@ gh pr view --web
 ```
 
 Expected locally: **FAIL**, exit 1. Expected on GitHub: **Application tests PASS**, **Maida behavioral gate FAIL**. Show `required_tools` failing because `run_regression_suite` is absent from the worker's trace. `no_new_tools` still passes: the regression is a missing responsibility. The independent application job does not satisfy the coding agent's verification responsibility. Leave the PR unmerged.
+
+Open the PR conversation to show the sticky `github-actions` Maida verdict comment. Its evaluated commit must match the PR head; the workflow link opens the corresponding check.

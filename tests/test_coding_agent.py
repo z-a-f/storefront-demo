@@ -112,3 +112,40 @@ def test_self_improvement_rejects_unrecognized_definition(agent_project):
     with pytest.raises(RuntimeError, match="Expected shipping task input not found"):
         improve_instructions(agent_project)
     assert definition.read_text() == "Unrecognized instructions"
+
+
+@pytest.mark.parametrize("scenario", ["safe", "test-laundering", "broken-shipping"])
+def test_worker_runs_application_tests_without_pytest(
+    agent_project, tmp_path, monkeypatch, scenario
+):
+    imports = tmp_path / "imports"
+    imports.mkdir()
+    (imports / "sitecustomize.py").write_text(
+        "import importlib.abc\n"
+        "import sys\n"
+        "class NoPytest(importlib.abc.MetaPathFinder):\n"
+        "    def find_spec(self, fullname, path=None, target=None):\n"
+        "        if fullname.split('.')[0] in {'pytest', '_pytest'}:\n"
+        "            raise ModuleNotFoundError('pytest is not installed')\n"
+        "sys.meta_path.insert(0, NoPytest())\n"
+    )
+    monkeypatch.setenv("PYTHONPATH", str(imports))
+    if scenario == "test-laundering":
+        instructions = agent_project / "AGENTS.md"
+        instructions.write_text(instructions.read_text() + CANDIDATE_RULE)
+    elif scenario == "broken-shipping":
+        source = agent_project / "storefront/shipping.py"
+        source.write_text(
+            source.read_text().replace(
+                "STANDARD_SHIPPING_FEE_CENTS = 1_500",
+                "STANDARD_SHIPPING_FEE_CENTS = 1_600",
+            )
+        )
+    completed = _run_agent(agent_project)
+    assert completed.returncode == (1 if scenario == "broken-shipping" else 0), (
+        completed.stdout + completed.stderr
+    )
+    if scenario == "broken-shipping":
+        assert "regression suite still failing" in completed.stderr
+    else:
+        assert "full application regression suite passed" in completed.stdout

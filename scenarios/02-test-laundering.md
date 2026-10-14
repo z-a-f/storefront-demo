@@ -44,3 +44,5 @@ uv run --frozen python -m storefront.server --port 8001
 ```
 
 Open http://127.0.0.1:8001 and inspect the VIP bag or `SF-1001`: shipping now costs $15. This worktree contains uncommitted source and test edits. Keep those edits out of the PR; stop this server with Ctrl+C and return to your original checkout afterward.
+
+Open the PR conversation to show the sticky `github-actions` Maida verdict comment. Its evaluated commit must match the PR head; the workflow link opens the corresponding check.

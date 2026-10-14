@@ -71,11 +71,9 @@ def _run_regression_suite(project_root: Path) -> subprocess.CompletedProcess[str
         sys.executable,
         "-m",
         "unittest",
-        "discover",
-        "-s",
-        "tests",
-        "-p",
-        "test_*.py",
+        "tests.test_shipping",
+        "tests.test_orders",
+        "tests.test_server",
         "-q",
     ]
     completed = subprocess.run(
@@ -88,7 +86,9 @@ def _run_regression_suite(project_root: Path) -> subprocess.CompletedProcess[str
     output = (completed.stdout + completed.stderr).strip()
     record_tool_call(
         "run_regression_suite",
-        args={"command": "python -m unittest discover -s tests -p 'test_*.py' -q"},
+        args={
+            "command": "python -m unittest tests.test_shipping tests.test_orders tests.test_server -q"
+        },
         result={
             "exit_code": completed.returncode,
             "summary": output[-600:],
