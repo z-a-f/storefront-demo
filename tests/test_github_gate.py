@@ -100,23 +100,55 @@ def test_github_summary_reports_observed_checks(agent_project, tmp_path, monkeyp
     assert "observed trials" in rendered
 
 
-def test_workflow_uses_base_policy_and_pinned_read_only_actions():
-    import re
+def test_workflows_delegate_gate_and_comments_to_maida_assert():
     import yaml
 
+    application = yaml.safe_load(
+        (PROJECT_ROOT / ".github/workflows/application.yml").read_text()
+    )
     workflow = yaml.safe_load(
-        (PROJECT_ROOT / ".github/workflows/pr-gate.yml").read_text()
+        (PROJECT_ROOT / ".github/workflows/maida.yml").read_text()
     )
+    assert set(application["jobs"]) == {"application"}
+    assert "github_gate.py" not in str(application)
+    assert set(workflow["jobs"]) == {"maida"}
+    # PyYAML's YAML 1.1 loader interprets the key `on` as True.
+    assert workflow[True] == ["pull_request"]
+    assert workflow["permissions"] == {
+        "contents": "read",
+        "checks": "write",
+        "pull-requests": "write",
+    }
     steps = workflow["jobs"]["maida"]["steps"]
-    assert workflow["permissions"] == {"contents": "read"}
-    assert "if" not in workflow["jobs"]["maida"]
-    trusted = next(
-        step for step in steps if step.get("with", {}).get("path") == "trusted"
+    checkout = next(step for step in steps if "checkout@" in step.get("uses", ""))
+    assert checkout["with"]["ref"] == "${{ github.event.pull_request.head.sha }}"
+    assert checkout["with"]["fetch-depth"] == 0
+    assert checkout["with"]["persist-credentials"] is False
+    gate = next(
+        step for step in steps if "maida-ai/maida-assert@" in step.get("uses", "")
     )
-    assert "pull_request.base.sha" in trusted["with"]["ref"]
-    assert any("--trusted-root ../trusted" in step.get("run", "") for step in steps)
-    assert any("git diff --quiet" in step.get("run", "") for step in steps)
-    for job in workflow["jobs"].values():
-        for step in job["steps"]:
-            if "uses" in step:
-                assert re.fullmatch(r"[^@]+@[0-9a-f]{40}", step["uses"])
+    assert gate["uses"] == "maida-ai/maida-assert@v0.6.0"
+    assert gate["with"] == {
+        "agent-script": "coding_agent.py",
+        "baseline": ".maida/baselines/coding-agent.json",
+        "policy": ".maida/policy.yaml",
+        "maida-version": "v0.6.1",
+        "python-version": "3.13",
+        "mode": "blocking",
+        "post-comment": "true",
+    }
+    assert not gate.get("continue-on-error", False)
+    assert "if" not in workflow["jobs"]["maida"]
+    assert "github_gate.py" not in str(workflow)
+    assert "sticky-pull-request-comment" not in str(workflow)
+    assert "artifact" not in str(workflow)
+    assert len(steps) == 2
+    assert not any("run" in step for step in steps)
+    assert "setup-python" not in str(workflow)
+    assert "setup-uv" not in str(workflow)
+    assert "uv export" not in str(workflow)
+    application_command = application["jobs"]["application"]["steps"][-1]["run"]
+    assert (
+        application_command
+        == "uv run --frozen python -m unittest tests.test_shipping tests.test_orders tests.test_server -q"
+    )

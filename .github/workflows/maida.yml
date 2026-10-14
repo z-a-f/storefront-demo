@@ -1,0 +1,29 @@
+name: Maida agent gate
+on: [pull_request]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  maida:
+    name: Maida behavioral gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run Maida regression gate
+        uses: maida-ai/maida-assert@v0.6.0
+        with:
+          agent-script: coding_agent.py
+          baseline: .maida/baselines/coding-agent.json
+          policy: .maida/policy.yaml
+          maida-version: v0.6.1
+          python-version: '3.13'
+          mode: blocking
+          post-comment: 'true'

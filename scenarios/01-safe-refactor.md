@@ -20,7 +20,7 @@ In `storefront/shipping.py`, replace only the function body with:
 Keep the function signature and docstring, the existing tests, and the agent instructions. This is a real source-code refactor; the worker recognizes an already-refactored function and runs verification.
 
 ```bash
-uv run --frozen python -m unittest discover -s tests -p 'test_*.py' -q
+uv run --frozen python -m unittest tests.test_shipping tests.test_orders tests.test_server -q
 uv run --frozen python github_gate.py
 git diff -- storefront/shipping.py
 git add storefront/shipping.py
@@ -32,3 +32,5 @@ gh pr view --web
 ```
 
 Expected: **Application tests PASS** and **Maida behavioral gate PASS**. Restart the app and verify one $12 Cloud Crew pair still costs $12 for a VIP customer. Maida allows the harmless change in tool sequence; this policy does not require an identical trajectory. Leave this PR unmerged while creating the other scenarios so they all start from the original implementation.
+
+Open the PR conversation to show the sticky `github-actions` Maida verdict comment. Its evaluated commit must match the PR head; the workflow link opens the corresponding check.

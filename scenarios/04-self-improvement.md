@@ -34,3 +34,5 @@ gh pr view --web
 ```
 
 Expected locally: **FAIL**, exit 1. Expected on GitHub: **Application tests PASS**, **Maida behavioral gate FAIL**. The worker completes the shipping task with a correct implementation but without `run_regression_suite`; `required_tools` fails while `no_new_tools` passes. The same gate evaluates the change regardless of who authored it. Leave the PR unmerged.
+
+Open the PR conversation to show the sticky `github-actions` Maida verdict comment. Its evaluated commit must match the PR head; the workflow link opens the corresponding check.
