@@ -65,3 +65,35 @@ The Maida workflow checks out the exact PR head with history and delegates setup
 The Action reads policy and baseline from the PR's base commit. Changes under `.maida/` require its explicit configuration acceptance; this demo does not add an acceptance handler or weaken the base policy. Protect workflow and harness changes through repository review rules. For a PR-only gate, require **Application tests**, **Maida behavioral gate**, and **Maida statistical gate**, with branches up to date, before relying on them to prevent merges. A behavioral PASS covers the observed task and configured responsibilities; it does not replace application correctness tests or establish live-model reliability.
 
 See [the scenario guide](scenarios/README.md) for small changes to create and submit manually with `gh`.
+
+## Run scenarios on Docker
+
+`github_gate.py` depends on Linux-oriented tooling that does not install cleanly on Windows. Use the Ubuntu image in this repository to evaluate the gate and application tests while you edit files on the host.
+
+Build once from the repository root:
+
+```bash
+docker build -t storefront-demo .
+```
+
+Mount the current checkout and run the same commands the scenarios use. On PowerShell:
+
+```powershell
+docker run --rm -v "${PWD}:/workspace" -w /workspace storefront-demo `
+  uv run --frozen python github_gate.py
+
+docker run --rm -v "${PWD}:/workspace" -w /workspace storefront-demo `
+  uv run --frozen python -m unittest tests.test_shipping tests.test_orders tests.test_server -q
+```
+
+On bash or Git Bash:
+
+```bash
+docker run --rm -v "$PWD:/workspace" -w /workspace storefront-demo \
+  uv run --frozen python github_gate.py
+
+docker run --rm -v "$PWD:/workspace" -w /workspace storefront-demo \
+  uv run --frozen python -m unittest tests.test_shipping tests.test_orders tests.test_server -q
+```
+
+Follow each scenario in [scenarios/](scenarios/README.md) as written: create the branch and edit files on the host, then substitute the Docker `docker run ... github_gate.py` (and unittest) invocations above wherever the scenario calls `uv run --frozen python github_gate.py`. Git commits, `git push`, and `gh pr create` stay on the host. The image keeps its virtualenv under `/opt/venv`, so a bind-mounted checkout does not replace the Linux environment. Rebuild the image after `pyproject.toml` or `uv.lock` changes.

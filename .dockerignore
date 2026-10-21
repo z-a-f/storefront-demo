@@ -1,0 +1,14 @@
+.git
+.venv
+.maida-data
+.pytest_cache
+.ruff_cache
+__pycache__
+*.py[cod]
+.coverage*
+htmlcov
+gate-report.json
+_ai_report
+_ai_*
+.github
+scenarios
