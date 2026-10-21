@@ -10,8 +10,8 @@ def shipping_fee_cents(subtotal_cents: int, *, is_vip: bool = False) -> int:
     VIP customers always receive free shipping. Other customers receive free
     shipping once their subtotal reaches the configured threshold.
     """
-    if is_vip:
-        return 0
-    if subtotal_cents >= FREE_SHIPPING_THRESHOLD_CENTS:
-        return 0
-    return STANDARD_SHIPPING_FEE_CENTS
+    return (
+        0
+        if is_vip or subtotal_cents >= FREE_SHIPPING_THRESHOLD_CENTS
+        else STANDARD_SHIPPING_FEE_CENTS
+    )
